@@ -1,0 +1,6 @@
+DEBIANVM24 IPaddr::192.168.2.38/24/eth0:0
+
+
+
+server1 drbddisk::r0 \
+        Filesystem::/dev/drbd0::/mnt/mysql::ext4

@@ -1,0 +1,8 @@
+server {
+    listen 80;
+
+    root /srv/www2;
+    index index.php index.html index.htm;
+
+    server_name site2.lab.home;
+}

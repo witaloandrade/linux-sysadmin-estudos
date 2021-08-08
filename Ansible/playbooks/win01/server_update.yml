@@ -1,0 +1,41 @@
+---
+- name: Install Zabbix Agent on Windows Servers
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Add Firewall Rule
+      win_firewall_rule:
+        name: Zabbix
+        localport: 10052
+        action: allow
+        direction: in
+        protocol: tcp
+        state: present
+        enabled: yes
+  
+    - name: Install Zabbix Agent
+      win_chocolatey:
+        name: zabbix-agent
+        state: present
+ 
+    - name:  Stop Zabbix Service
+      win_service:
+        name: 'Zabbix Agent'
+        state: stopped
+
+    - name: Delete Default Config File
+      win_file:
+        path: C:\ProgramData\zabbix\zabbix_agentd.conf
+        state: absent
+
+    - name: Copy Our Zabbix Config File
+      win_copy:
+        #src: /root/ansible/books/win01/zabbix_agentd.conf
+        src: ./zabbix_agentd.conf
+        dest: 'C:\ProgramData\zabbix\zabbix_agentd.conf'
+        remote_src: no
+
+    - name: Start Zabbix Server 
+      win_service:
+        name: 'Zabbix Agent'
+        state: started

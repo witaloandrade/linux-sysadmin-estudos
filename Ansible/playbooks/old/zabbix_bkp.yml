@@ -1,0 +1,14 @@
+---
+- name: Install Zabbix
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Add Firewall Rule
+      win_firewall_rule:
+        name: Zabbix
+        localport: 10052
+        action: allow
+        direction: in
+        protocol: tcp
+        state: present
+        enabled: yes

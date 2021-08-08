@@ -1,0 +1,33 @@
+node 1: debianvm22
+node 2: debianvm23
+primitive recurso_drbd ocf:linbit:drbd \
+        params drbd_resource=r0 \
+        op start interval=0 timeout=240 \
+        op stop interval=0 timeout=100 \
+        op monitor interval=59s role=Master timeout=30s \
+        op monitor interval=60s role=Slave timeout=30s
+primitive recurso_failover_apache lsb:apache2 \
+        op monitor interval=15s
+primitive recurso_failover_ip IPaddr2 \
+        params ip=192.168.2.37 cidr_netmask=24 nic="eth0:0" \
+        op monitor interval=10s
+primitive recurso_fs_drbd0 Filesystem \
+        params device="/dev/drbd0" directory="/mnt/data/" fstype=ext4 \
+        op start interval=0 timeout=60 \
+        op stop interval=0 timeout=120
+group grupo_fs recurso_fs_drbd0
+group grupo_inicia recurso_failover_ip recurso_failover_apache
+ms ms_drbd recurso_drbd \
+        meta master-node-max=1 clone-max=2 clone-node-max=1 globally-unique=false notify=true target-role=Master
+order app_no_drbd inf: ms_drbd:promote grupo_fs:start grupo_inicia:start
+location cli-prefer-recurso_failover_ip recurso_failover_ip role=Started inf: debianvm23
+colocation dependencias inf: ms_drbd:Master grupo_fs grupo_inicia
+location drbd_em_debianvm22 ms_drbd \
+        rule $role=Master 100: #uname eq debianvm22
+property cib-bootstrap-options: \
+        have-watchdog=false \
+        dc-version=1.1.15-e174ec8 \
+        cluster-infrastructure=corosync \
+        cluster-name=debian \
+        stonith-enabled=false \
+        no-quorum-policy=ignore

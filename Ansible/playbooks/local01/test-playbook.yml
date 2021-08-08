@@ -1,0 +1,7 @@
+---
+- name: testing ansible
+  hosts: testing
+
+  tasks:
+    - name: echo a massege
+      debug: msg="funcionou"

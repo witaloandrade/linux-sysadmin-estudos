@@ -1,0 +1,28 @@
+frontend secure-http-in
+bind *:443 ssl crt /etc/haproxy/no.pwd.server.pem
+# bind *:80
+mode http
+option http-server-close
+option forwardfor
+
+acl is_acme_front hdr(host) -i testemandic.com.br
+acl is_acme_backoffice hdr(host) -i host2.testemandic.com.br
+
+use_backend acme_front if is_acme_front
+use_backend acme_backoffice if is_acme_backoffice
+
+
+
+backend acme_front
+balance roundrobin
+option httpclose
+option forwardfor
+# server node1 172.17.0.1:12080 check
+server node2 10.10.10.2:80 check
+
+backend acme_backoffice
+balance roundrobin
+option httpclose
+option forwardfor
+server node1 10.10.10.3:80 check
+# server node2 172.17.0.1:13090 check

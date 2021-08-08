@@ -1,0 +1,21 @@
+;
+; BIND data file for local loopback interface
+;
+$TTL	604800
+@	IN	SOA	ns.lb.home. root.lab.home (
+			      2		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+;
+@	IN	NS	ns.lab.home.
+ns	IN	A	192.168.2.2	
+
+
+;Other Hosts
+DEBIANVM01	192.168.2.100
+DEBIANVM01	192.168.2.100
+DEBIANVM01	192.168.2.100
+CENTOSVM01	192.168.2.100
+CENTOSVM02	192.168.2.100

@@ -1,0 +1,42 @@
+# ipsec.conf - strongSwan IPsec configuration file
+
+config setup
+        charondebug="all"
+        uniqueids=yes
+        strictcrlpolicy=no
+	charondebug="ike 2, knl 2, cfg 2"
+conn %default
+        ike=aes256-sha2_256-modp1024!
+        esp=aes256-sha2_256!
+        keyingtries=0
+        ikelifetime=1h
+        lifetime=8h
+        dpddelay=30
+        dpdtimeout=120
+        dpdaction=restart
+#        authby=secret
+        auto=start
+        keyexchange=ikev2
+        type=tunnel
+	leftcert=client2Cert.pem
+        leftid="C=CH, O=strongSwan, CN=device2"
+        rightid="C=CH, O=strongSwan, CN=device1"
+
+
+
+conn R13-11
+        left=192.168.2.35
+        leftsubnet=10.10.13.0/24
+        right=192.168.2.32
+        rightsubnet=10.10.11.0/24
+
+conn R14-12
+        left=192.168.2.35
+        leftsubnet=10.10.14.0/24
+        right=192.168.2.32
+        rightsubnet=10.10.12.0/24
+
+
+
+
+include /var/lib/strongswan/ipsec.conf.inc

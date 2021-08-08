@@ -1,0 +1,48 @@
+http://tobias.ws/wiki/index.php/Pacemaker_com_corosync_mais_DRBD_disponibilizando_failover_ip,_apache_e_openldap#Instalando_.5B2.5D
+
+
+root@debian:~# crm
+crm(live)#
+crm(live)# cib new configuracao12092013
+INFO: configuracao12092013 shadow CIB created
+crm(configuracao12092013)#
+crm(configuracao12092013)# configure
+crm(configuracao12092013)configure# show
+
+
+
+#property stonith-enabled=false
+#property no-quorum-policy=ignore
+
+#primitive recurso_drbd ocf:linbit:drbd params drbd_resource="r0" op start interval="0" timeout="240" op stop interval="0" timeout="100" op monitor interval="59s" role="Master" timeout="30s" op monitor interval="60s" role="Slave" timeout="30s"
+
+#primitive recurso_fs_drbd0 ocf:heartbeat:Filesystem params device="/dev/drbd0" directory="/mnt/data/" fstype="ext4" op start interval="0" timeout="60" op stop interval="0" timeout="120"
+
+#primitive recurso_failover_ip ocf:heartbeat:IPaddr2 params ip=192.168.2.37 cidr_netmask=24 nic=eth0:0 op monitor interval=10s
+
+primitive recurso_failover_apache lsb:apache2 op monitor interval="15s"
+
+#primitive recurso_failover_openldap lsb:slapd
+
+#group grupo_inicia recurso_failover_ip  recurso_failover_apache
+#group grupo_fs recurso_fs_drbd0
+
+#ms ms_drbd recurso_drbd meta master-node-max="1" clone-max="2" clone-node-max="1" globally-unique="false" notify="true" target-role="Master"
+
+#location drbd_em_debianvm22 ms_drbd rule role="Master" 100: #uname eq debianvm22
+
+#colocation dependencias inf: ms_drbd:Master grupo_fs grupo_inicia
+#order app_no_drbd inf: ms_drbd:promote grupo_fs:start grupo_inicia:start
+
+
+#verify
+#end
+There are changes pending. Do you want to commit them? y
+# cib use live
+# cib commit configuracao12092013
+# quit
+bye
+
+ crm_mon --one-shot
+
+ 

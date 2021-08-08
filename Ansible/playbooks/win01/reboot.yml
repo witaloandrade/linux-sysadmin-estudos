@@ -1,0 +1,7 @@
+---
+- name: Reboot Servers
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Rebooting
+      win_reboot:
